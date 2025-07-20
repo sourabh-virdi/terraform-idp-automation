@@ -1,0 +1,91 @@
+# Site settings
+title: "Terraform IdP Automation"
+description: "Comprehensive Terraform modules for automated Identity Provider management across AWS Cognito, Azure AD, Okta, and Keycloak"
+baseurl: "/terraform-idp-automation"
+url: "https://outlookvirdi.github.io"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Navigation
+header_pages:
+  - index.md
+  - getting-started.md
+  - modules/index.md
+  - examples/index.md
+  - blog/index.md
+  - api/index.md
+  - contributing.md
+
+# Collections
+collections:
+  modules:
+    output: true
+    permalink: /:collection/:name/
+  examples:
+    output: true
+    permalink: /:collection/:name/
+  blog:
+    output: true
+    permalink: /:collection/:year/:month/:day/:title/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      author: "Platform Team"
+  - scope:
+      path: ""
+      type: "modules"
+    values:
+      layout: "module"
+  - scope:
+      path: ""
+      type: "examples"
+    values:
+      layout: "example"
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - .terraform/
+  - "*.tfstate"
+  - "*.tfplan"
+
+# SEO and social
+twitter:
+  username: your_twitter_handle
+  card: summary_large_image
+
+github:
+  repository_url: "https://github.com/outlookvirdi/terraform-idp-automation"
+
+# Analytics (optional)
+google_analytics: G-5HPN52RB57
+
+# Syntax highlighting
+kramdown:
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: 'highlight'
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true 

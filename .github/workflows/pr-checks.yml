@@ -1,0 +1,289 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened]
+
+env:
+  TF_VERSION: "1.5.0"
+
+jobs:
+  changed-files:
+    name: 📂 Detect Changed Files
+    runs-on: ubuntu-latest
+    outputs:
+      terraform: ${{ steps.filter.outputs.terraform }}
+      modules: ${{ steps.filter.outputs.modules }}
+      examples: ${{ steps.filter.outputs.examples }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 🔍 Check Changed Files
+      uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          terraform:
+            - '**/*.tf'
+            - '**/*.tfvars'
+            - '**/*.hcl'
+          modules:
+            - 'modules/**'
+          examples:
+            - 'examples/**'
+          docs:
+            - '**/*.md'
+            - 'docs/**'
+
+  terraform-fmt:
+    name: 🎨 Terraform Format
+    runs-on: ubuntu-latest
+    needs: changed-files
+    if: needs.changed-files.outputs.terraform == 'true'
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 🏗️ Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: 🎨 Check Formatting
+      run: |
+        terraform fmt -check -diff -recursive
+        if [ $? -ne 0 ]; then
+          echo "❌ Terraform files are not properly formatted"
+          echo "Run 'terraform fmt -recursive' to fix formatting issues"
+          exit 1
+        fi
+
+  module-validation:
+    name: ✅ Module Validation
+    runs-on: ubuntu-latest
+    needs: changed-files
+    if: needs.changed-files.outputs.modules == 'true'
+    strategy:
+      matrix:
+        module:
+          - modules/aws-cognito
+          - modules/azure-ad
+          - modules/okta
+          - modules/keycloak
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 🏗️ Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: 🚀 Initialize Module
+      working-directory: ${{ matrix.module }}
+      run: terraform init -backend=false
+
+    - name: ✅ Validate Module
+      working-directory: ${{ matrix.module }}
+      run: terraform validate
+
+    - name: 📋 Plan Module (Dry Run)
+      working-directory: ${{ matrix.module }}
+      run: |
+        # Create a minimal tfvars for planning
+        case "${{ matrix.module }}" in
+          "modules/aws-cognito")
+            echo 'user_pool_name = "test-pool"' > test.tfvars
+            echo 'client_name = "test-client"' >> test.tfvars
+            ;;
+          "modules/azure-ad")
+            echo 'application_name = "test-app"' > test.tfvars
+            ;;
+          "modules/okta")
+            echo 'app_name = "test-app"' > test.tfvars
+            ;;
+          "modules/keycloak")
+            echo 'realm_name = "test-realm"' > test.tfvars
+            ;;
+        esac
+        terraform plan -var-file=test.tfvars -out=tfplan || true
+
+  example-validation:
+    name: 🔍 Example Validation
+    runs-on: ubuntu-latest
+    needs: changed-files
+    if: needs.changed-files.outputs.examples == 'true'
+    strategy:
+      matrix:
+        example:
+          - examples/multi-provider
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 🏗️ Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: 🚀 Initialize Example
+      working-directory: ${{ matrix.example }}
+      run: terraform init -backend=false
+
+    - name: ✅ Validate Example
+      working-directory: ${{ matrix.example }}
+      run: terraform validate
+
+  security-check:
+    name: 🔒 Security Check
+    runs-on: ubuntu-latest
+    needs: changed-files
+    if: needs.changed-files.outputs.terraform == 'true'
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: 🔒 Install Checkov
+      run: pip install checkov
+
+    - name: 🛡️ Run Security Scan
+      run: |
+        checkov --directory . \
+          --framework terraform \
+          --output cli \
+          --quiet \
+          --compact \
+          --skip-check CKV_AWS_79,CKV_AWS_20,CKV2_AWS_6
+
+  documentation-check:
+    name: 📖 Documentation Check
+    runs-on: ubuntu-latest
+    needs: changed-files
+    if: needs.changed-files.outputs.docs == 'true' || needs.changed-files.outputs.terraform == 'true'
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 📚 Check README Files
+      run: |
+        # Check if all modules have README files
+        for dir in modules/*/; do
+          if [ ! -f "${dir}README.md" ]; then
+            echo "❌ Missing README.md in ${dir}"
+            exit 1
+          fi
+        done
+        echo "✅ All modules have README files"
+
+    - name: 🔗 Check Links in Documentation
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-quiet-mode: 'yes'
+        use-verbose-mode: 'yes'
+        config-file: '.github/markdown-link-config.json'
+
+  size-check:
+    name: 📏 Size Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 📊 Check Repository Size
+      run: |
+        size=$(du -sh . | cut -f1)
+        echo "Repository size: $size"
+        
+        # Check for large files
+        find . -type f -size +1M -not -path './.git/*' | while read -r file; do
+          echo "⚠️ Large file detected: $file ($(du -h "$file" | cut -f1))"
+        done
+
+  pr-summary:
+    name: 📝 PR Summary
+    runs-on: ubuntu-latest
+    needs: [terraform-fmt, module-validation, example-validation, security-check, documentation-check]
+    if: always()
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 📊 Generate PR Summary
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { context } = require('@actions/github');
+          
+          const jobs = [
+            { name: 'Terraform Format', status: '${{ needs.terraform-fmt.result }}' },
+            { name: 'Module Validation', status: '${{ needs.module-validation.result }}' },
+            { name: 'Example Validation', status: '${{ needs.example-validation.result }}' },
+            { name: 'Security Check', status: '${{ needs.security-check.result }}' },
+            { name: 'Documentation Check', status: '${{ needs.documentation-check.result }}' }
+          ];
+          
+          let summary = '## 🔍 Pull Request Validation Summary\n\n';
+          
+          jobs.forEach(job => {
+            const emoji = job.status === 'success' ? '✅' : 
+                         job.status === 'failure' ? '❌' : 
+                         job.status === 'skipped' ? '⏭️' : '⏳';
+            summary += `${emoji} **${job.name}**: ${job.status}\n`;
+          });
+          
+          summary += '\n### 📋 Next Steps\n';
+          
+          const failures = jobs.filter(job => job.status === 'failure');
+          if (failures.length > 0) {
+            summary += '- Fix the failing checks above\n';
+            summary += '- Push changes to update this PR\n';
+          } else {
+            summary += '- All checks passed! ✨\n';
+            summary += '- Ready for review and merge\n';
+          }
+          
+          // Post comment
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: summary
+          });
+
+  auto-merge:
+    name: 🤖 Auto Merge
+    runs-on: ubuntu-latest
+    needs: [terraform-fmt, module-validation, example-validation, security-check, documentation-check]
+    if: |
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      needs.terraform-fmt.result == 'success' &&
+      needs.module-validation.result == 'success' &&
+      needs.example-validation.result == 'success' &&
+      needs.security-check.result == 'success' &&
+      needs.documentation-check.result == 'success'
+    
+    steps:
+    - name: 🤖 Auto Approve Dependabot PRs
+      uses: hmarr/auto-approve-action@v3
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🔄 Enable Auto Merge
+      uses: alexwilson/enable-github-automerge-action@main
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }} 
