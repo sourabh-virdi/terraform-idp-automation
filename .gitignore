@@ -63,7 +63,6 @@ pids
 # Sensitive files that might contain secrets
 *secret*
 *password*
-*key*
 !README.md
 !*example*
 

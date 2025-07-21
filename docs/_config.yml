@@ -2,7 +2,7 @@
 title: "Terraform IdP Automation"
 description: "Comprehensive Terraform modules for automated Identity Provider management across AWS Cognito, Azure AD, Okta, and Keycloak"
 baseurl: "/terraform-idp-automation"
-url: "https://outlookvirdi.github.io"
+url: "https://sourabh-virdi.github.io"
 
 # Build settings
 markdown: kramdown
@@ -75,7 +75,7 @@ twitter:
   card: summary_large_image
 
 github:
-  repository_url: "https://github.com/outlookvirdi/terraform-idp-automation"
+  repository_url: "https://github.com/sourabh-virdi/terraform-idp-automation"
 
 # Analytics (optional)
 google_analytics: G-5HPN52RB57

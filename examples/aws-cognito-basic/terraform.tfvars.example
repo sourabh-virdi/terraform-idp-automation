@@ -1,0 +1,50 @@
+# AWS Configuration
+aws_region = "us-east-1"
+
+# Cognito Configuration
+user_pool_name = "my-app-users"
+client_name    = "my-app-client"
+environment    = "dev"
+
+# Application URLs - Update these with your actual application URLs
+callback_urls = [
+  "https://localhost:3000/auth/callback",
+  "https://myapp.example.com/auth/callback"
+]
+
+logout_urls = [
+  "https://localhost:3000/logout",
+  "https://myapp.example.com/logout"
+]
+
+# Password Policy
+password_policy = {
+  minimum_length    = 8
+  require_lowercase = true
+  require_uppercase = true
+  require_numbers   = true
+  require_symbols   = false
+}
+
+# MFA Configuration
+mfa_configuration          = "OPTIONAL"  # Options: OFF, OPTIONAL, REQUIRED
+software_token_mfa_enabled = true
+sms_mfa_enabled           = false
+
+# Security Settings
+advanced_security_mode = "AUDIT"  # Options: OFF, AUDIT, ENFORCED
+
+# Optional: Custom Domain (uncomment and configure if needed)
+# domain_name = "auth.myapp.example.com"
+
+# Optional: Identity Pool (uncomment if you need AWS credential federation)
+# create_identity_pool = true
+# identity_pool_name   = "my-app-identity"
+
+# Tags
+tags = {
+  Environment = "development"
+  Project     = "my-app"
+  Team        = "engineering"
+  ManagedBy   = "terraform"
+} 
