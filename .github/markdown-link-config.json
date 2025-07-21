@@ -1,0 +1,51 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^https://example\\.com"
+    },
+    {
+      "pattern": "^https://myapp\\.com"
+    },
+    {
+      "pattern": "^https://portal\\.company\\.com"
+    },
+    {
+      "pattern": "^https://app-dev\\.mycompany\\.com"
+    },
+    {
+      "pattern": "^https://.*\\.oktapreview\\.com"
+    },
+    {
+      "pattern": "^https://.*\\.okta\\.com"
+    },
+    {
+      "pattern": "^https://login\\.microsoftonline\\.com"
+    },
+    {
+      "pattern": "^mailto:"
+    }
+  ],
+  "replacementPatterns": [
+    {
+      "pattern": "^/",
+      "replacement": "file://"
+    }
+  ],
+  "httpHeaders": [
+    {
+      "urls": ["https://github.com"],
+      "headers": {
+        "User-Agent": "markdown-link-check"
+      }
+    }
+  ],
+  "timeout": "20s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackHttpStatus": [
+    {
+      "urls": ["https://www.linkedin.com"],
+      "status": 200
+    }
+  ]
+} 
