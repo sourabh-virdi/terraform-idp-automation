@@ -91,7 +91,7 @@ jobs:
           echo "- **Build Time**: $(date)" >> $GITHUB_STEP_SUMMARY
 
       - name: 📤 Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./docs/_site
 
