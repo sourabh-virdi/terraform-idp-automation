@@ -12,12 +12,15 @@ This guide will walk you through setting up the Terraform IdP Automation project
 
 ### Required Accounts & Access
 - **AWS Account** with IAM permissions for Cognito, Identity Pools, and IAM
+- **Azure AD Tenant** with Global Administrator or Application Administrator role
+- **Okta Organization** (Developer account sufficient) with Super Admin API access
+- **Keycloak Server** (optional) with admin access
 
 ## 🚀 Quick Start (5 Minutes)
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/outlookvirdi/terraform-idp-automation.git
+git clone https://github.com/sourabh-virdi/terraform-idp-automation.git
 cd terraform-idp-automation
 ```
 
@@ -100,6 +103,30 @@ Create an IAM policy with these permissions:
     ]
 }
 ```
+
+#### Azure AD Setup
+
+1. **Login to Azure**
+```bash
+az login
+```
+
+2. **Set Environment Variables**
+```bash
+export AZURE_TENANT_ID=your-tenant-id
+export AZURE_CLIENT_ID=your-client-id
+export AZURE_CLIENT_SECRET=your-client-secret
+```
+
+3. **Create Service Principal** (if not using CLI auth)
+```bash
+az ad sp create-for-rbac --name "terraform-idp-automation" --role "Application Administrator"
+```
+
+4. **Required Azure AD Permissions**
+- Application Administrator role
+- Directory.ReadWrite.All (for creating apps)
+- Group.ReadWrite.All (for managing groups)
 
 ### 3. Configuration Examples
 
@@ -191,6 +218,14 @@ aws cognito-idp list-user-pools --max-items 10
 aws cognito-idp describe-user-pool --user-pool-id us-east-1_XXXXXXXXX
 ```
 
+**Azure AD:**
+```bash
+# List applications
+az ad app list --query "[?displayName=='your-app-name']"
+
+# List groups
+az ad group list --query "[?displayName=='your-group-name']"
+```
 #### Integration Testing
 
 1. **SAML Federation Test**
@@ -319,6 +354,6 @@ terraform fmt -check
 
 ## 🤝 Support
 
-- **Issues**: [GitHub Issues](https://github.com/outlookvirdi/terraform-idp-automation/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/outlookvirdi/terraform-idp-automation/discussions)
-- **Documentation**: [Project Wiki](https://github.com/outlookvirdi/terraform-idp-automation/wiki) 
+- **Issues**: [GitHub Issues](https://github.com/sourabh-virdi/terraform-idp-automation/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/sourabh-virdi/terraform-idp-automation/discussions)
+- **Documentation**: [Project Wiki](https://github.com/sourabh-virdi/terraform-idp-automation/wiki) 

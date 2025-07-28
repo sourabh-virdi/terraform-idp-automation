@@ -16,8 +16,11 @@ This project provides Infrastructure as Code (IaC) solutions for provisioning an
 ```
 ├── modules/
 │   ├── aws-cognito/          # AWS Cognito user pools and configurations
+│   ├── azure-ad/             # Azure AD applications and enterprise setup
 ├── examples/
-│   └── multi-provider/       # Multi-provider SSO sandbox
+│   ├── aws-cognito-basic/     # Example AWS Cognito with SAML
+│   ├── azure-ad-sso/         # Example Azure AD SSO setup
+├── docs/                     # Additional documentation
 └── terraform.tf             # Provider configurations
 ```
 
@@ -44,6 +47,9 @@ terraform apply
 
 ### AWS Cognito Module
 Provisions AWS Cognito user pools with SAML integration and identity providers.
+
+### Azure AD Module
+Sets up Azure AD applications, service principals, and enterprise applications for SSO.
 
 ## Examples
 
