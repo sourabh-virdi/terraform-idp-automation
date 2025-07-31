@@ -1,0 +1,129 @@
+# Keycloak Server Configuration
+keycloak_url       = "http://localhost:8080"  # Your Keycloak server URL
+keycloak_client_id = "admin-cli"              # Admin client ID (usually admin-cli)
+keycloak_username  = "admin"                  # Admin username
+keycloak_password  = "admin"                  # Admin password (change this!)
+
+# Realm Configuration
+realm_name         = "example-company"
+realm_display_name = "Example Company"
+realm_enabled      = true
+
+# OpenID Connect Clients
+oidc_clients = {
+  "webapp" = {
+    client_id     = "company-webapp"
+    name          = "Company Web Application"
+    description   = "Main company web application using OpenID Connect"
+    enabled       = true
+    redirect_uris = [
+      "https://webapp.example.com/auth/callback",
+      "https://localhost:3000/auth/callback"
+    ]
+    web_origins = [
+      "https://webapp.example.com",
+      "https://localhost:3000"
+    ]
+  }
+  "mobile-app" = {
+    client_id     = "company-mobile"
+    name          = "Company Mobile App"
+    description   = "Company mobile application"
+    enabled       = true
+    redirect_uris = [
+      "companyapp://auth/callback"
+    ]
+    web_origins = []
+  }
+}
+
+# Users
+users = {
+  "john.doe" = {
+    username   = "john.doe"
+    email      = "john.doe@example.com"
+    first_name = "John"
+    last_name  = "Doe"
+    enabled    = true
+  }
+  "jane.smith" = {
+    username   = "jane.smith"
+    email      = "jane.smith@example.com"
+    first_name = "Jane"
+    last_name  = "Smith"
+    enabled    = true
+  }
+  "admin.user" = {
+    username   = "admin.user"
+    email      = "admin@example.com"
+    first_name = "Admin"
+    last_name  = "User"
+    enabled    = true
+  }
+}
+
+# Groups
+groups = {
+  "employees" = {
+    name = "Employees"
+    path = "/Employees"
+  }
+  "managers" = {
+    name = "Managers"
+    path = "/Managers"
+  }
+  "admins" = {
+    name = "Administrators"
+    path = "/Administrators"
+  }
+  "developers" = {
+    name = "Developers"
+    path = "/Employees/Developers"
+  }
+}
+
+# Realm Roles
+realm_roles = {
+  "employee" = {
+    name        = "employee"
+    description = "Standard employee role"
+  }
+  "manager" = {
+    name        = "manager"
+    description = "Manager role with elevated permissions"
+  }
+  "admin" = {
+    name        = "admin"
+    description = "Administrator role with full access"
+  }
+  "developer" = {
+    name        = "developer"
+    description = "Developer role with technical access"
+  }
+}
+
+# Identity Providers (optional - configure external IdPs)
+identity_providers = {
+  # "google" = {
+  #   provider_id   = "google"
+  #   display_name  = "Google"
+  #   enabled       = true
+  #   client_id     = "your-google-client-id"
+  #   client_secret = "your-google-client-secret"
+  # }
+  # "microsoft" = {
+  #   provider_id   = "microsoft"
+  #   display_name  = "Microsoft"
+  #   enabled       = true
+  #   client_id     = "your-microsoft-client-id"
+  #   client_secret = "your-microsoft-client-secret"
+  # }
+}
+
+# Tags
+tags = {
+  Environment = "development"
+  Project     = "company-sso"
+  Team        = "platform"
+  ManagedBy   = "terraform"
+} 

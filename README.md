@@ -17,9 +17,14 @@ This project provides Infrastructure as Code (IaC) solutions for provisioning an
 ├── modules/
 │   ├── aws-cognito/          # AWS Cognito user pools and configurations
 │   ├── azure-ad/             # Azure AD applications and enterprise setup
+│   ├── okta/                 # Okta applications and user management
+│   └── keycloak/             # Keycloak realm and client configurations
 ├── examples/
 │   ├── aws-cognito-basic/     # Example AWS Cognito with SAML
 │   ├── azure-ad-sso/         # Example Azure AD SSO setup
+│   ├── okta-integration/     # Example Okta integration
+│   ├── keycloak-setup/       # Example Keycloak configuration
+│   └── multi-provider/       # Multi-provider SSO sandbox
 ├── docs/                     # Additional documentation
 └── terraform.tf             # Provider configurations
 ```
@@ -50,6 +55,12 @@ Provisions AWS Cognito user pools with SAML integration and identity providers.
 
 ### Azure AD Module
 Sets up Azure AD applications, service principals, and enterprise applications for SSO.
+
+### Okta Module
+Configures Okta applications, user assignments, and authentication policies.
+
+### Keycloak Module
+Deploys Keycloak realms, clients, and user federation configurations.
 
 ## Examples
 

@@ -16,6 +16,16 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 3.0"
     }
+    
+    okta = {
+      source  = "okta/okta"
+      version = "~> 4.0"
+    }
+    
+    keycloak = {
+      source  = "mrparkers/keycloak"
+      version = "~> 4.0"
+    }
   }
 }
 
@@ -34,3 +44,13 @@ provider "azurerm" {
   features {}
   # Azure Resource Manager provider
 }
+
+provider "okta" {
+  # Okta provider configuration
+  # OKTA_ORG_NAME, OKTA_BASE_URL, OKTA_API_TOKEN
+}
+
+provider "keycloak" {
+  # Keycloak provider configuration
+  # KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET, KEYCLOAK_URL
+} 

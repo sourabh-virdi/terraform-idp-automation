@@ -128,6 +128,36 @@ az ad sp create-for-rbac --name "terraform-idp-automation" --role "Application A
 - Directory.ReadWrite.All (for creating apps)
 - Group.ReadWrite.All (for managing groups)
 
+#### Okta Setup
+
+1. **Get API Token**
+   - Login to Okta Admin Console
+   - Go to Security → API → Tokens
+   - Create new token with Super Admin permissions
+
+2. **Set Environment Variables**
+```bash
+export OKTA_ORG_NAME=your-okta-org
+export OKTA_BASE_URL=okta.com  # or oktapreview.com
+export OKTA_API_TOKEN=your-api-token
+```
+
+#### Keycloak Setup
+
+1. **Install Keycloak** (if self-hosting)
+```bash
+# Using Docker
+docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:latest start-dev
+```
+
+2. **Set Environment Variables**
+```bash
+export KEYCLOAK_CLIENT_ID=admin-cli
+export KEYCLOAK_USERNAME=admin
+export KEYCLOAK_PASSWORD=admin
+export KEYCLOAK_URL=http://localhost:8080
+```
+
 ### 3. Configuration Examples
 
 #### Basic Single Provider Setup
@@ -226,6 +256,18 @@ az ad app list --query "[?displayName=='your-app-name']"
 # List groups
 az ad group list --query "[?displayName=='your-group-name']"
 ```
+
+**Okta:**
+```bash
+# Test API connectivity
+curl -H "Authorization: SSWS $OKTA_API_TOKEN" \
+  https://$OKTA_ORG_NAME.okta.com/api/v1/org
+
+# List applications
+curl -H "Authorization: SSWS $OKTA_API_TOKEN" \
+  https://$OKTA_ORG_NAME.okta.com/api/v1/apps
+```
+
 #### Integration Testing
 
 1. **SAML Federation Test**
@@ -351,6 +393,9 @@ terraform fmt -check
 
 - [Module Documentation](./modules/)
 - [Example Configurations](./examples/)
+- [Architecture Overview](./docs/architecture.md)
+- [Best Practices Guide](./docs/best-practices.md)
+- [Troubleshooting Guide](./docs/troubleshooting.md)
 
 ## 🤝 Support
 
