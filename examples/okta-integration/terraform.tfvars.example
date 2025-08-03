@@ -1,0 +1,100 @@
+# Okta Configuration
+okta_org_name  = "your-okta-org"    # Your Okta organization name (e.g., "dev-123456")
+okta_base_url  = "okta.com"         # Options: "okta.com" or "oktapreview.com"
+okta_api_token = "your-api-token"   # Get from Okta Admin Console -> Security -> API -> Tokens
+
+# Application Configuration
+app_name        = "my-saml-app"
+app_description = "My SAML Application for Enterprise SSO"
+environment     = "dev"
+
+# SAML Application Settings
+create_saml_app = true
+sso_url         = "https://myapp.example.com/saml/acs"     # Your app's SAML Assertion Consumer Service URL
+audience        = "https://myapp.example.com"              # Your app's Entity ID
+destination     = "https://myapp.example.com/saml/acs"     # Same as sso_url usually
+
+# OAuth Application Settings (optional)
+create_oauth_app = false  # Set to true if you need OAuth/OIDC
+oauth_app_type   = "web"  # Options: web, native, browser, service
+redirect_uris = [
+  "https://myapp.example.com/auth/callback"
+]
+post_logout_redirect_uris = [
+  "https://myapp.example.com/logout"
+]
+
+# SAML Attribute Mapping
+attribute_statements = [
+  {
+    type      = "EXPRESSION"
+    name      = "email"
+    namespace = "urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+    values    = ["user.email"]
+  },
+  {
+    type      = "EXPRESSION"
+    name      = "firstName"
+    namespace = "urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+    values    = ["user.firstName"]
+  },
+  {
+    type      = "EXPRESSION"
+    name      = "lastName"
+    namespace = "urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+    values    = ["user.lastName"]
+  },
+  {
+    type      = "EXPRESSION"
+    name      = "groups"
+    namespace = "urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+    values    = ["isMemberOfGroupName(\"Application Users\") ? \"User\" : \"\""]
+  }
+]
+
+# Okta Groups
+groups = {
+  "app-users" = {
+    name        = "My App Users"
+    description = "Users with access to My Application"
+    type        = "OKTA_GROUP"
+  }
+  "app-admins" = {
+    name        = "My App Administrators"
+    description = "Administrators with full access to My Application"
+    type        = "OKTA_GROUP"
+  }
+  "app-managers" = {
+    name        = "My App Managers"
+    description = "Managers with elevated permissions in My Application"
+    type        = "OKTA_GROUP"
+  }
+}
+
+# User Assignments (optional - usually managed through groups)
+users = {
+  # "test-user" = {
+  #   email      = "test.user@example.com"
+  #   first_name = "Test"
+  #   last_name  = "User"
+  #   login      = "test.user@example.com"
+  # }
+}
+
+# Sign-on Policies (optional - for advanced authentication rules)
+signon_policies = {
+  # "mfa-policy" = {
+  #   name        = "MFA Required Policy"
+  #   description = "Require MFA for all users accessing this application"
+  #   priority    = 1
+  #   type        = "OKTA_SIGN_ON"
+  # }
+}
+
+# Tags
+tags = {
+  Environment = "development"
+  Project     = "my-app"
+  Team        = "engineering"
+  ManagedBy   = "terraform"
+} 
